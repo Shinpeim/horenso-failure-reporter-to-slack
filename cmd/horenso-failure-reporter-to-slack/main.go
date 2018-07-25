@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/Shinpeim/hourenso-failure-reporter-to-slack"
+	"github.com/Shinpeim/horenso-failure-reporter-to-slack"
 )
 
 func main() {

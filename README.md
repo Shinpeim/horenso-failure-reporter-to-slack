@@ -1,1 +1,1 @@
-# hourenso-failure-reporter-to-slack
+# horenso-failure-reporter-to-slack
