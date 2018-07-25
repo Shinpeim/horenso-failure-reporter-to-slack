@@ -1,10 +1,10 @@
 package failurereporter
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"encoding/json"
 )
 
 type horensoOut struct {
@@ -35,13 +35,19 @@ func parseHorensoOut(stdin io.Reader) (*horensoOut, error) {
 }
 
 // Run the reporter
-func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
-	_, err := parseHorensoOut(stdin)
+func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, c SlackClient) int {
+	ho, err := parseHorensoOut(stdin)
 
 	if err != nil {
 		fmt.Fprintln(stderr, err.Error())
 		return 1
 	}
+
+	if ho.exitCode == 0 {
+		return 0
+	}
+
+	c.Post(ho.stderr)
 
 	return 0
 }

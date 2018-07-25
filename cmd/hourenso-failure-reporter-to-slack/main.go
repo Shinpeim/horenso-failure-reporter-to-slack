@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	os.Exit(failurereporter.Run(os.Stdin, os.Stdout, os.Stderr))
+	os.Exit(failurereporter.Run(os.Stdin, os.Stdout, os.Stderr, failurereporter.NewSlackClient()))
 }
