@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+
+	"github.com/Shinpeim/horenso-failure-reporter-to-slack/slack-client"
 )
 
 type horensoOut struct {
@@ -35,7 +37,7 @@ func parseHorensoOut(stdin io.Reader) (*horensoOut, error) {
 }
 
 // Run the reporter
-func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, c SlackClient) int {
+func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, c slackclient.Client) int {
 	ho, err := parseHorensoOut(stdin)
 
 	if err != nil {
