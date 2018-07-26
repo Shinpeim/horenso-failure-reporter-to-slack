@@ -5,24 +5,22 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-
-	"github.com/Shinpeim/horenso-failure-reporter-to-slack/slack-client"
 )
 
 type horensoOut struct {
-	command     string
-	commandArgs []string
-	output      string
-	stdout      string
-	stderr      string
-	exitCode    int
-	result      string
-	pid         int
-	startAt     string
-	endAt       string
-	hostname    string
-	systemTime  float32
-	userTime    float32
+	Command     string `json:"command"`
+	CommandArgs []string `json:"commandArgs"`
+	Output      string `json:"output"`
+	Stdout      string `json:"stdout"`
+	Stderr      string `json:"stderr"`
+	ExitCode    int `json:"exitCode"`
+	Result      string `json:"result"`
+	Pid         int `json:"pid"`
+	StartAt     string `json:"startAt"`
+	EndAt       string `json:"endAt"`
+	Hostname    string `json:"hostName"`
+	SystemTime  float32 `json:"systemTime"`
+	UserTime    float32 `json:"userTime"`
 }
 
 func parseHorensoOut(stdin io.Reader) (*horensoOut, error) {
@@ -37,7 +35,7 @@ func parseHorensoOut(stdin io.Reader) (*horensoOut, error) {
 }
 
 // Run the reporter
-func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, c slackclient.Client) int {
+func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, c SlackClient) int {
 	ho, err := parseHorensoOut(stdin)
 
 	if err != nil {
@@ -45,11 +43,11 @@ func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, c slackclient.Clie
 		return 1
 	}
 
-	if ho.exitCode == 0 {
+	if ho.ExitCode == 0 {
 		return 0
 	}
 
-	c.Post(ho.stderr)
+	c.Post(ho)
 
 	return 0
 }

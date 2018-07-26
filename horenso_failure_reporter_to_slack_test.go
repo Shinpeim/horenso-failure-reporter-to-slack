@@ -7,14 +7,18 @@ import (
 )
 
 type mockedSlackClient struct {
-	Text string
+	ho     *horensoOut
+	Called bool
 }
-func (m *mockedSlackClient) Post(text string) error {
-	m.Text = text
+
+func (m *mockedSlackClient) Post(ho *horensoOut) error {
+	m.Called = true
 	return nil
 }
-func newMockedSlcakClient() *mockedSlackClient{
-	return &mockedSlackClient{"initial text"}
+func newMockedSlcakClient() *mockedSlackClient {
+	m := &mockedSlackClient{}
+	m.Called = false
+	return m
 }
 
 func TestInvalidJson(t *testing.T) {
@@ -26,10 +30,10 @@ func TestInvalidJson(t *testing.T) {
 	exitCode := Run(invalidJSONReader, mockedStdOut, mockedStdErr, mockedSlackClient)
 
 	if exitCode != 1 {
-		t.Fatal("can't handle invalid JSON")
+		t.Errorf("can't handle invalid JSON")
 	}
 	if mockedStdErr.String() == "" {
-		t.Fatal("got no error message when given invalid json")
+		t.Errorf("got no error message when given invalid json")
 	}
 }
 
@@ -56,7 +60,7 @@ func TestValidJson(t *testing.T) {
 	_, err := parseHorensoOut(validJSONReader)
 
 	if err != nil {
-		t.Fatal("failed to parse json")
+		t.Errorf("failed to parse json")
 	}
 }
 
@@ -87,15 +91,14 @@ func TestSucceededCommand(t *testing.T) {
 	exitCode := Run(jr, mockedStdOut, mockedStdErr, mockedSlackClient)
 
 	if exitCode != 0 {
-		t.Fatal("failed to handle failed command")
+		t.Errorf("failed to handle succeeded command")
 	}
 
-	if mockedSlackClient.Text != "initial text" {
-		t.Fatal("slack client was called when the command succeeded")
+	if mockedSlackClient.Called {
+		t.Errorf("slack client was called when the command succeeded")
 	}
 
 }
-
 
 func TestFailedCommand(t *testing.T) {
 	json := `{
@@ -106,8 +109,8 @@ func TestFailedCommand(t *testing.T) {
 		"output": "1",
 		"stdout": "1",
 		"stderr": "1",
-		"exitCode": 0,
-		"result": "command exited with code: 0",
+		"exitCode": 1,
+		"result": "command exited with code: 1",
 		"pid": 95030,
 		"startAt": "2015-12-28T00:37:10.494282399+09:00",
 		"endAt": "2015-12-28T00:37:10.546466379+09:00",
@@ -122,13 +125,14 @@ func TestFailedCommand(t *testing.T) {
 	mockedSlackClient := newMockedSlcakClient()
 
 	exitCode := Run(jr, mockedStdOut, mockedStdErr, mockedSlackClient)
+	t.Log(mockedSlackClient)
 
 	if exitCode != 0 {
-		t.Fatal("failed to handle failed command")
+		t.Errorf("failed to handle failed command")
 	}
 
-	if mockedSlackClient.Text != "initial text" {
-		t.Fatal("slack client was called when the command succeeded")
+	if !mockedSlackClient.Called {
+		t.Errorf("slack client wasn't called when the command failed")
 	}
 
 }
