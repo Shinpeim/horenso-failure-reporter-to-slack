@@ -47,7 +47,11 @@ func Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, c SlackClient) int
 		return 0
 	}
 
-	c.Post(ho)
+	err = c.Post(ho)
+	if (err != nil) {
+		fmt.Fprintln(stderr, err.Error())
+		return 2
+	}
 
 	return 0
 }
